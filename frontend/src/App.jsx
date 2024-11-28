@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState } from "react";
+
+const generosColumns = ['Action', 'Adventure', 'Comedy', 'Crime', 'Family', 'Fantasy', 'Mystery', 'Sci-Fi', 'Thriller'];
 
 const JuegoRecomendaciones = () => {
     const [juegos, setJuegos] = useState([]);
     const [recomendaciones, setRecomendaciones] = useState({});
     const [error, setError] = useState('');
     const [detalleJuego, setDetalleJuego] = useState(null);
-    const [debugInfo, setDebugInfo] = useState('');
-    const [cargandoDetalles, setCargandoDetalles] = useState(false);
+    const [cargandoJuego, setCargandoJuego] = useState('');
 
+    // Función para obtener las recomendaciones de juegos
     const obtenerRecomendaciones = async () => {
         if (juegos.length !== 3) {
             setError('Se deben ingresar exactamente 3 juegos');
@@ -24,48 +26,44 @@ const JuegoRecomendaciones = () => {
             if (!response.ok) throw new Error('Error al obtener las recomendaciones');
 
             const data = await response.json();
-            console.log("Datos de recomendaciones recibidos:", data);
-
-            if (data && typeof data === 'object') {
-                setRecomendaciones(data.recomendaciones);
-                setError('');
-                setDebugInfo(JSON.stringify(data.debug, null, 2));
-            } else {
-                setError('La respuesta no contiene datos válidos');
-            }
+            setRecomendaciones(data.recomendaciones || {});
+            setError('');
         } catch (err) {
-            console.error('Error al obtener las recomendaciones:', err);
             setError('Hubo un error al obtener las recomendaciones.');
         }
     };
 
+    // Función para obtener los detalles de un juego seleccionado
     const obtenerDetallesJuego = async (nombreJuego) => {
-    setCargandoDetalles(true);
-    try {
-        const response = await fetch(`http://localhost:5000/juego/${nombreJuego}`);
-        if (!response.ok) throw new Error('Error al obtener los detalles del juego');
+        setCargandoJuego(nombreJuego);
+        try {
+            const response = await fetch(`http://localhost:5000/juego/${nombreJuego}`);
+            if (!response.ok) throw new Error('Error al obtener los detalles del juego');
+    
+            const data = await response.json();
+            console.log('Detalles del juego:', data);  // Revisa la respuesta en la consola
+    
+            // Filtrar las categorías con valor `true`
+            const categorias = Object.entries(data)
+                .filter(([key, value]) => generosColumns.includes(key) && value === true)
+                .map(([key]) => key);
+    
+            setDetalleJuego({
+                nombre: nombreJuego,
+                categorias,
+                año: data.year || 'Información no disponible',
+                descripcion: data.plot || 'No se encontró una descripción para este juego.',
+                rating: data.rating || 'Sin calificación',
+            });
+            setError('');
+        } catch (err) {
+            setError('Hubo un error al obtener los detalles del juego.');
+        } finally {
+            setCargandoJuego('');
+        }
+    };
 
-        const data = await response.json();
-
-        // Filtrar las categorías con valor `true`.
-        const categorias = Object.entries(data)
-            .filter(([key, value]) => generosColumns.includes(key) && value === true)
-            .map(([key]) => key);
-
-        setDetalleJuego({
-            categorias,
-            año: data.year_of_release,
-            descripcion: data.description,
-            rating: data.rating,
-        });
-        setError('');
-    } catch (err) {
-        setError('Hubo un error al obtener los detalles del juego.');
-    } finally {
-        setCargandoDetalles(false);
-    }
-};
-
+    // Función para manejar el cambio en los campos de entrada
     const handleInputChange = (e, index) => {
         const newJuegos = [...juegos];
         newJuegos[index] = e.target.value;
@@ -100,6 +98,7 @@ const JuegoRecomendaciones = () => {
                                     <li
                                         key={index}
                                         onClick={() => obtenerDetallesJuego(similitud.juego_similar)}
+                                        style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
                                     >
                                         {`Juego Similar: ${similitud.juego_similar}, Similitud: ${similitud.similitud}`}
                                     </li>
@@ -112,24 +111,15 @@ const JuegoRecomendaciones = () => {
                 )}
             </div>
 
-            {cargandoDetalles && <p>Cargando detalles del juego...</p>}
+            {cargandoJuego && <p>Cargando detalles de {cargandoJuego}...</p>}
             {detalleJuego && (
                 <div>
-                    <h2>Detalles del Juego: {detalleJuego.name}</h2>
-                    {Object.entries(detalleJuego).map(([key, value]) => (
-                        key !== 'name' && (
-                            <p key={key}>
-                                <strong>{key}:</strong> {typeof value === 'boolean' ? (value ? 'Sí' : 'No') : value}
-                            </p>
-                        )
-                    ))}
-                </div>
-            )}
-
-            {debugInfo && (
-                <div>
-                    <h3>Información de Depuración:</h3>
-                    <pre>{debugInfo}</pre>
+                    <h2>Detalles del Juego:</h2>
+                    <h3>{detalleJuego.nombre}</h3>
+                    <p><strong>Categorías:</strong> {detalleJuego.categorias.join(', ') || 'No hay categorías disponibles'}</p>
+                    <p><strong>Año:</strong> {detalleJuego.año}</p>
+                    <p><strong>Descripción:</strong> {detalleJuego.descripcion}</p>
+                    <p><strong>Rating:</strong> {detalleJuego.rating}</p>
                 </div>
             )}
         </div>
