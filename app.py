@@ -73,7 +73,16 @@ def obtener_detalles_juego(nombre):
     juego = df[df['name_normalized'] == nombre.lower()]
     if juego.empty:
         return jsonify({"error": "Juego no encontrado"}), 404
-    return jsonify(juego.iloc[0].to_dict())
+
+    # Obtener detalles del juego
+    juego_detalle = juego.iloc[0].to_dict()
+
+    # Asegurarse de que los campos 'year' y 'plot' existan
+    juego_detalle['year'] = juego_detalle.get('year', 'Información no disponible')
+    juego_detalle['plot'] = juego_detalle.get('plot', 'No se encontró una descripción para este juego.')
+
+    return jsonify(juego_detalle)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
