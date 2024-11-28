@@ -40,20 +40,31 @@ const JuegoRecomendaciones = () => {
     };
 
     const obtenerDetallesJuego = async (nombreJuego) => {
-        setCargandoDetalles(true);
-        try {
-            const response = await fetch(`http://localhost:5000/juego/${nombreJuego}`);
-            if (!response.ok) throw new Error('Error al obtener los detalles del juego');
+    setCargandoDetalles(true);
+    try {
+        const response = await fetch(`http://localhost:5000/juego/${nombreJuego}`);
+        if (!response.ok) throw new Error('Error al obtener los detalles del juego');
 
-            const data = await response.json();
-            setDetalleJuego(data);
-            setError('');
-        } catch (err) {
-            setError('Hubo un error al obtener los detalles del juego.');
-        } finally {
-            setCargandoDetalles(false);
-        }
-    };
+        const data = await response.json();
+
+        // Filtrar las categorías con valor `true`.
+        const categorias = Object.entries(data)
+            .filter(([key, value]) => generosColumns.includes(key) && value === true)
+            .map(([key]) => key);
+
+        setDetalleJuego({
+            categorias,
+            año: data.year_of_release,
+            descripcion: data.description,
+            rating: data.rating,
+        });
+        setError('');
+    } catch (err) {
+        setError('Hubo un error al obtener los detalles del juego.');
+    } finally {
+        setCargandoDetalles(false);
+    }
+};
 
     const handleInputChange = (e, index) => {
         const newJuegos = [...juegos];
