@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import './App.css';
 
@@ -9,6 +10,7 @@ const JuegoRecomendaciones = () => {
     const [error, setError] = useState('');  
     const [detalleJuego, setDetalleJuego] = useState(null);  
     const [debugInfo, setDebugInfo] = useState('');
+
     const [cargandoJuego, setCargandoJuego] = useState('');
 
     const obtenerRecomendaciones = async () => {
@@ -41,8 +43,8 @@ const JuegoRecomendaciones = () => {
             if (!response.ok) throw new Error('Error al obtener los detalles del juego');
     
             const data = await response.json();
+
             console.log('Detalles del juego:', data);
-    
             const categorias = Object.entries(data)
                 .filter(([key, value]) => generosColumns.includes(key) && value === true)
                 .map(([key]) => key);
@@ -67,7 +69,6 @@ const JuegoRecomendaciones = () => {
         newJuegos[index] = e.target.value;
         setJuegos(newJuegos);
     };
-
     const handleEnter = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -138,6 +139,7 @@ const JuegoRecomendaciones = () => {
                         <p><strong>Description:</strong> {detalleJuego.descripcion}</p>
                         <p><strong>Rating:</strong> {detalleJuego.rating}</p>
                     </div>
+   
                 </div>
             )}
             <section className='footer'>

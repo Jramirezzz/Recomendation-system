@@ -76,6 +76,7 @@ def obtener_detalles_juego(nombre):
 
     juego_detalle = juego.iloc[0].to_dict()
 
+    # Asegurarse de que los campos 'year' y 'plot' existan
     juego_detalle['year'] = juego_detalle.get('year', 'Información no disponible')
     juego_detalle['plot'] = juego_detalle.get('plot', 'No se encontró una descripción para este juego.')
 
