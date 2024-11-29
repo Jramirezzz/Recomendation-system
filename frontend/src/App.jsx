@@ -63,6 +63,7 @@ const JuegoRecomendaciones = () => {
         }
     };
 
+
     // Función para manejar el cambio en los campos de entrada
     const handleInputChange = (e, index) => {
         const newJuegos = [...juegos];
