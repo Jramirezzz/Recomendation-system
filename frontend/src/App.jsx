@@ -1,148 +1,175 @@
 import { useState } from 'react';
+import './App.css';
+
+const generosColumns = ['Action', 'Adventure', 'Comedy', 'Crime', 'Family', 'Fantasy', 'Mystery', 'Sci-Fi', 'Thriller'];
 
 const JuegoRecomendaciones = () => {
     const [juegos, setJuegos] = useState([]); 
     const [recomendaciones, setRecomendaciones] = useState({});  
     const [error, setError] = useState('');  
     const [detalleJuego, setDetalleJuego] = useState(null);  
-    const [debugInfo, setDebugInfo] = useState('');  
+    const [debugInfo, setDebugInfo] = useState('');
+    const [cargandoJuego, setCargandoJuego] = useState('');
 
-    // Función para obtener las recomendaciones de juegos
     const obtenerRecomendaciones = async () => {
-        // Verificar si se han ingresado exactamente 3 juegos
         if (juegos.length !== 3) {
-            setError('Se deben ingresar exactamente 3 juegos');
+            setError('Exactly 3 games must be entered');
             return;
         }
 
         try {
-            // Usamos fetch en lugar de axios para hacer la solicitud POST
             const response = await fetch('http://localhost:5000/recomendar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ juegos }),
             });
 
-            // Verificamos si la respuesta fue exitosa
             if (!response.ok) {
-                throw new Error('Error al obtener las recomendaciones');
+                throw new Error('Error getting recommendations');
             }
 
-            // Convertimos la respuesta en JSON
             const data = await response.json();
+            console.log("Recommendation data received:", data);
 
-            // Depurar la respuesta
-            console.log("Datos de recomendaciones recibidos:", data);
-
-            // Verificar que la respuesta contiene los datos correctos
             if (data && typeof data === 'object') {
-                setRecomendaciones(data);  // Almacenamos las recomendaciones en el estado
-                setError('');  // Limpiamos cualquier error anterior
-                setDebugInfo(JSON.stringify(data.debug, null, 2));  // Mostrar información de depuración
+                setRecomendaciones(data.recomendaciones);
+                setError('');
+                setDebugInfo(JSON.stringify(data.debug, null, 2));
             } else {
-                setError('La respuesta no contiene datos válidos');
+                setError('The response does not contain valid data');
             }
         } catch (err) {
-            console.error('Hubo un error al obtener las recomendaciones:', err);
-            setError('Hubo un error al obtener las recomendaciones.');
+            console.error('Error getting recommendations:', err);
+            setError('There was an error getting the recommendations.');
         }
     };
 
-    // Función para obtener los detalles del juego seleccionado
     const obtenerDetallesJuego = async (nombreJuego) => {
+        setCargandoJuego(nombreJuego);
         try {
-            // Realizamos una consulta a la ruta /juego/<nombre> usando fetch
             const response = await fetch(`http://localhost:5000/juego/${nombreJuego}`);
             if (!response.ok) {
-                throw new Error('Error al obtener los detalles del juego');
+                throw new Error('Error getting game details');
             }
             const data = await response.json();
-            setDetalleJuego(data);  // Guardamos los detalles del juego en el estado
+            console.log('Game details received:', data);
+
+            const categorias = Object.keys(data)
+                .filter((key) => key !== 'name' && key !== 'name_normalized' && data[key])
+                .map((key) => key);
+
+            setDetalleJuego({
+                nombre: nombreJuego,
+                categorias,
+                año: data.year || 'Information not available',
+                descripcion: data.plot || 'No description found for this game.',
+                rating: data.rating || 'No rating',
+            });
+            setError('');
         } catch (err) {
-            setError('Hubo un error al obtener los detalles del juego.');
+            console.error('Error getting game details:', err);
+            setError('There was an error getting the game details.');
+        } finally {
+            setCargandoJuego('');
         }
     };
 
-    // Función para manejar el cambio de los inputs de los juegos
     const handleInputChange = (e, index) => {
         const newJuegos = [...juegos];
         newJuegos[index] = e.target.value;
         setJuegos(newJuegos);
     };
 
+    const handleEnter = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            obtenerRecomendaciones();
+        }
+    };
+
     return (
-        <div>
-            <h1>Recomendaciones de Juegos</h1>
+        <section className='container'>
+            <div className='forms' onKeyDown={handleEnter}>
+                <h1>Next Game</h1>
 
-            {/* Campos de entrada para los juegos */}
-            {Array.from({ length: 3 }, (_, index) => (
-                <div key={index}>
-                    <input
-                        type="text"
-                        placeholder={`Juego ${index + 1}`}
-                        value={juegos[index] || ''}
-                        onChange={(e) => handleInputChange(e, index)}
-                    />
+                <div className='inputs'>
+                    {Array.from({ length: 3 }, (_, index) => (
+                        <input
+                            type="text"
+                            placeholder={`Game ${index + 1}`}
+                            value={juegos[index] || ''}
+                            onChange={(e) => handleInputChange(e, index)}
+                            className='input'
+                            key={index}
+                            required="required"
+                        />
+                    ))}
                 </div>
-            ))}
-
-            <button onClick={obtenerRecomendaciones}>Obtener Recomendaciones</button>
-
-            {/* Mostrar errores si existen */}
-            {error && <p>{error}</p>}
-
-            {/* Mostrar las recomendaciones de juegos */}
-            <h2>Recomendaciones y Similitudes:</h2>
-            <div>
-                {Object.keys(recomendaciones).length > 0 ? (
-                    Object.keys(recomendaciones).map((metodo) => (
-                        <div key={metodo}>
-                            <h3>{metodo.toUpperCase()}</h3>
-                            <ul>
-                                {Array.isArray(recomendaciones[metodo]) && recomendaciones[metodo].length > 0 ? (
-                                    recomendaciones[metodo].slice(0, 5).map((similitud, index) => (
-                                        <li
-                                            key={index}
-                                            onClick={() => obtenerDetallesJuego(similitud.juego_similar)}  // Obtener detalles al hacer clic
-                                        >
-                                            {`Juego Similar: ${similitud.juego_similar}, Similitud: ${similitud.similitud}`}
-                                        </li>
-                                    ))
-                                ) : (
-                                    <p>No hay juegos recomendados para este método.</p>
-                                )}
-                            </ul>
-                        </div>
-                    ))
-                ) : (
-                    <p>No hay recomendaciones disponibles.</p>
-                )}
+                
+                <button className='button' onClick={obtenerRecomendaciones}>Get Recommendations</button>
             </div>
 
-            {/* Mostrar los detalles del juego seleccionado */}
-            {detalleJuego && (
-                <div>
-                    <h2>Detalles del Juego: {detalleJuego.name}</h2>
-                    <p><strong>Géneros:</strong> {Object.keys(detalleJuego)
-                        .filter((key) => key !== 'name' && key !== 'name_normalized')  // Filtrar la clave 'name' y 'name_normalized'
-                        .map((genre, index) => detalleJuego[genre] ? genre : null)  // Mostrar solo los géneros con valor verdadero
-                        .filter(Boolean)
-                        .join(', ')}</p>
-                    <p><strong>Descripción:</strong> {detalleJuego.description}</p>
-                    <p><strong>Año de lanzamiento:</strong> {detalleJuego.release_year}</p>
-                    <p><strong>Plataforma:</strong> {detalleJuego.platform}</p>
-                    {/* Puedes agregar más detalles si lo deseas */}
-                </div>
-            )}
+            {error && <p>{error}</p>}
 
-            {/* Mostrar la información de depuración */}
-            {debugInfo && (
-                <div>
-                    <h3>Información de Depuración:</h3>
-                    <pre>{debugInfo}</pre>
+            <div className='recomendaciones-section'>
+                <h2>Recommendations and Similarities:</h2>
+                <div className='recomendaciones'>
+                    {Object.keys(recomendaciones).length > 0 ? (
+                        Object.keys(recomendaciones).map((metodo) => (
+                            <div key={metodo}>
+                                <h3 className='titulo-metodo'>{metodo.toUpperCase()}</h3>
+                                <div className='lista'>
+                                    {Array.isArray(recomendaciones[metodo]) && recomendaciones[metodo].length > 0 ? (
+                                        recomendaciones[metodo].slice(0, 5).map((similitud, index) => (
+                                            <button className='item'
+                                                key={index}
+                                                onClick={() => obtenerDetallesJuego(similitud.juego_similar)}
+                                            >
+                                                <div className='item-juego'>{`${similitud.juego_similar}`}</div><div className='item-similitud'>{`Similarity: ${similitud.similitud}`}</div> 
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <p>No recommended games for this method.</p>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No recommendations available.</p>
+                    )}
+                </div>
+            </div>
+
+            {cargandoJuego && <p>Loading details of {cargandoJuego}...</p>}
+            {detalleJuego && (
+                <div className='juego-info'>
+                    <h3>{detalleJuego.nombre}</h3>
+                    <div className='caracteristicas'>
+                        <p><strong>Categories:</strong> {detalleJuego.categorias.join(', ') || 'No categories available'}</p>
+                        <p><strong>Year:</strong> {detalleJuego.año}</p>
+                        <p><strong>Description:</strong> {detalleJuego.descripcion}</p>
+                        <p><strong>Rating:</strong> {detalleJuego.rating}</p>
+                    </div>
                 </div>
             )}
-        </div>
+            <section className='footer'>
+                <h3>About Recommendation Systems</h3>
+                <p>
+                    This recommendation system uses three different methods to suggest games based on your input:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Cosine Similarity:</strong> Measures the cosine of the angle between two vectors, representing the similarity between them.
+                    </li>
+                    <li>
+                        <strong>Euclidean Distance:</strong> Calculates the straight-line distance between two points in a multi-dimensional space.
+                    </li>
+                    <li>
+                        <strong>Pearson Correlation:</strong> Measures the linear correlation between two sets of data, indicating how well they relate.
+                    </li>
+                </ul>
+        </section>
+        </section>
     );
 };
 
