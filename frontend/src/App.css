@@ -1,42 +1,170 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+  #root {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
   }
-  to {
-    transform: rotate(360deg);
-  }
+
+.container{
+  background-color: #171D25;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 50px;
+  min-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.inputs{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
 }
 
-.card {
-  padding: 2em;
+.input {
+  display: block;
+  width: 200px;
+  height: 40px;
+  background-color: #2A3F5A;
+  border: 2px solid #292929;
+  border-radius: 10px;
+  padding: 0px 12px;
+  outline: none;
+  caret-color: rgb(152, 88, 255);
+  color: rgb(212, 212, 212);
+  font-size: 12px;
+  transition-duration: .2s;
+  font-size: 15px;
 }
 
-.read-the-docs {
-  color: #888;
+.input:focus,
+.input:valid {
+  border: 2px solid #A1CD44;
+  transition-duration: .2s;
+}
+
+.forms{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 50px;
+}
+
+.button{
+  border-radius: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #A1CD44;
+  border-radius: 10px;
+  color: #2F2F2F;
+}
+
+.recomendaciones-section{
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #A1CD44;
+  border-radius: 10px;
+}
+
+.recomendaciones-section h2{
+  color: #1999FF;
+}
+
+.recomendaciones{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: start;
+  gap: 20px;
+}
+
+.titulo-metodo{
+  color: #1999FF;
+}
+
+.lista{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  padding: 0;
+  gap: 20px;
+}
+
+.item{
+  display: flex;
+  flex-direction: column;
+  border-radius: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  justify-content: center;
+  width: 300px;
+  height: 100px;
+  gap: 5px;
+}
+
+.item-juego{
+  color: #1999FF;
+}
+
+.item-similitud{
+  background-color: #A1CD44;
+  color: #2F2F2F;
+  padding: 0 5px 0 5px;
+  border-radius: 10px;
+}
+
+.juego-info{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  border: 1px solid #A1CD44;
+  width: 800px;
+  border-radius: 10px;
+  padding: 30px;
+}
+
+.juego-info h3{
+  color: #A1CD44;
+  width: 200px;
+}
+
+.caracteristicas{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+}
+
+.caracteristicas p{
+  text-align: left;
+}
+
+.caracteristicas p strong{
+  color: #1999FF;
+}
+.footer h3{
+  color: #1999FF;
+}
+
+.footer strong{
+  color: #A1CD44;  
+}
+
+ul{
+  list-style-type: none;
 }

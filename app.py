@@ -74,7 +74,6 @@ def obtener_detalles_juego(nombre):
     if juego.empty:
         return jsonify({"error": "Juego no encontrado"}), 404
 
-    # Obtener detalles del juego
     juego_detalle = juego.iloc[0].to_dict()
 
     # Asegurarse de que los campos 'year' y 'plot' existan

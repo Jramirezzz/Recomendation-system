@@ -1,15 +1,18 @@
-import { useState } from "react";
+
+import { useState } from 'react';
+import './App.css';
 
 const generosColumns = ['Action', 'Adventure', 'Comedy', 'Crime', 'Family', 'Fantasy', 'Mystery', 'Sci-Fi', 'Thriller'];
 
 const JuegoRecomendaciones = () => {
-    const [juegos, setJuegos] = useState([]);
-    const [recomendaciones, setRecomendaciones] = useState({});
-    const [error, setError] = useState('');
-    const [detalleJuego, setDetalleJuego] = useState(null);
+    const [juegos, setJuegos] = useState([]); 
+    const [recomendaciones, setRecomendaciones] = useState({});  
+    const [error, setError] = useState('');  
+    const [detalleJuego, setDetalleJuego] = useState(null);  
+    const [debugInfo, setDebugInfo] = useState('');
+
     const [cargandoJuego, setCargandoJuego] = useState('');
 
-    // Función para obtener las recomendaciones de juegos
     const obtenerRecomendaciones = async () => {
         if (juegos.length !== 3) {
             setError('Se deben ingresar exactamente 3 juegos');
@@ -33,7 +36,6 @@ const JuegoRecomendaciones = () => {
         }
     };
 
-    // Función para obtener los detalles de un juego seleccionado
     const obtenerDetallesJuego = async (nombreJuego) => {
         setCargandoJuego(nombreJuego);
         try {
@@ -41,9 +43,8 @@ const JuegoRecomendaciones = () => {
             if (!response.ok) throw new Error('Error al obtener los detalles del juego');
     
             const data = await response.json();
-            console.log('Detalles del juego:', data);  // Revisa la respuesta en la consola
-    
-            // Filtrar las categorías con valor `true`
+
+            console.log('Detalles del juego:', data);
             const categorias = Object.entries(data)
                 .filter(([key, value]) => generosColumns.includes(key) && value === true)
                 .map(([key]) => key);
@@ -63,67 +64,102 @@ const JuegoRecomendaciones = () => {
         }
     };
 
-
-    // Función para manejar el cambio en los campos de entrada
     const handleInputChange = (e, index) => {
         const newJuegos = [...juegos];
         newJuegos[index] = e.target.value;
         setJuegos(newJuegos);
     };
+    const handleEnter = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            obtenerRecomendaciones();
+        }
+    };
 
     return (
-        <div>
-            <h1>Recomendaciones de Juegos</h1>
-            {Array.from({ length: 3 }, (_, index) => (
-                <div key={index}>
-                    <input
-                        type="text"
-                        placeholder={`Juego ${index + 1}`}
-                        value={juegos[index] || ''}
-                        onChange={(e) => handleInputChange(e, index)}
-                    />
+        <section className='container'>
+            <div className='forms' onKeyDown={handleEnter}>
+                <h1>Next Game</h1>
+
+                <div className='inputs'>
+                    {Array.from({ length: 3 }, (_, index) => (
+                        <input
+                            type="text"
+                            placeholder={`Game ${index + 1}`}
+                            value={juegos[index] || ''}
+                            onChange={(e) => handleInputChange(e, index)}
+                            className='input'
+                            key={index}
+                            required="required"
+                        />
+                    ))}
                 </div>
-            ))}
-            <button onClick={obtenerRecomendaciones}>Obtener Recomendaciones</button>
+                
+                <button className='button' onClick={obtenerRecomendaciones}>Get Recommendations</button>
+            </div>
 
             {error && <p>{error}</p>}
 
-            <h2>Recomendaciones y Similitudes:</h2>
-            <div>
-                {Object.keys(recomendaciones).length > 0 ? (
-                    Object.keys(recomendaciones).map((metodo) => (
-                        <div key={metodo}>
-                            <h3>{metodo.toUpperCase()}</h3>
-                            <ul>
-                                {recomendaciones[metodo].map((similitud, index) => (
-                                    <li
-                                        key={index}
-                                        onClick={() => obtenerDetallesJuego(similitud.juego_similar)}
-                                        style={{ cursor: 'pointer', textDecoration: 'underline', color: 'blue' }}
-                                    >
-                                        {`Juego Similar: ${similitud.juego_similar}, Similitud: ${similitud.similitud}`}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))
-                ) : (
-                    <p>No hay recomendaciones disponibles.</p>
-                )}
+            <div className='recomendaciones-section'>
+                <h2>Recommendations and Similarities:</h2>
+                <div className='recomendaciones'>
+                    {Object.keys(recomendaciones).length > 0 ? (
+                        Object.keys(recomendaciones).map((metodo) => (
+                            <div key={metodo}>
+                                <h3 className='titulo-metodo'>{metodo.toUpperCase()}</h3>
+                                <div className='lista'>
+                                    {Array.isArray(recomendaciones[metodo]) && recomendaciones[metodo].length > 0 ? (
+                                        recomendaciones[metodo].slice(0, 5).map((similitud, index) => (
+                                            <button className='item'
+                                                key={index}
+                                                onClick={() => obtenerDetallesJuego(similitud.juego_similar)}
+                                            >
+                                                <div className='item-juego'>{`${similitud.juego_similar}`}</div><div className='item-similitud'>{`Similarity: ${similitud.similitud}`}</div> 
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <p>No recommended games for this method.</p>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No recommendations available.</p>
+                    )}
+                </div>
             </div>
 
-            {cargandoJuego && <p>Cargando detalles de {cargandoJuego}...</p>}
+            {cargandoJuego && <p>Loading details of {cargandoJuego}...</p>}
             {detalleJuego && (
-                <div>
-                    <h2>Detalles del Juego:</h2>
+                <div className='juego-info'>
                     <h3>{detalleJuego.nombre}</h3>
-                    <p><strong>Categorías:</strong> {detalleJuego.categorias.join(', ') || 'No hay categorías disponibles'}</p>
-                    <p><strong>Año:</strong> {detalleJuego.año}</p>
-                    <p><strong>Descripción:</strong> {detalleJuego.descripcion}</p>
-                    <p><strong>Rating:</strong> {detalleJuego.rating}</p>
+                    <div className='caracteristicas'>
+                        <p><strong>Categories:</strong> {detalleJuego.categorias.join(', ') || 'No categories available'}</p>
+                        <p><strong>Year:</strong> {detalleJuego.año}</p>
+                        <p><strong>Description:</strong> {detalleJuego.descripcion}</p>
+                        <p><strong>Rating:</strong> {detalleJuego.rating}</p>
+                    </div>
+   
                 </div>
             )}
-        </div>
+            <section className='footer'>
+                <h3>About Recommendation Systems</h3>
+                <p>
+                    This recommendation system uses three different methods to suggest games based on your input:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Cosine Similarity:</strong> Measures the cosine of the angle between two vectors, representing the similarity between them.
+                    </li>
+                    <li>
+                        <strong>Euclidean Distance:</strong> Calculates the straight-line distance between two points in a multi-dimensional space.
+                    </li>
+                    <li>
+                        <strong>Pearson Correlation:</strong> Measures the linear correlation between two sets of data, indicating how well they relate.
+                    </li>
+                </ul>
+        </section>
+        </section>
     );
 };
 
