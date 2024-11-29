@@ -2,7 +2,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; 
+    height: 100vh;
   }
 
 .container{
@@ -157,7 +157,6 @@
 .caracteristicas p strong{
   color: #1999FF;
 }
-
 .footer h3{
   color: #1999FF;
 }

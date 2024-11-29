@@ -13,7 +13,7 @@ const JuegoRecomendaciones = () => {
 
     const obtenerRecomendaciones = async () => {
         if (juegos.length !== 3) {
-            setError('Exactly 3 games must be entered');
+            setError('Se deben ingresar exactamente 3 juegos');
             return;
         }
 
@@ -24,23 +24,13 @@ const JuegoRecomendaciones = () => {
                 body: JSON.stringify({ juegos }),
             });
 
-            if (!response.ok) {
-                throw new Error('Error getting recommendations');
-            }
+            if (!response.ok) throw new Error('Error al obtener las recomendaciones');
 
             const data = await response.json();
-            console.log("Recommendation data received:", data);
-
-            if (data && typeof data === 'object') {
-                setRecomendaciones(data.recomendaciones);
-                setError('');
-                setDebugInfo(JSON.stringify(data.debug, null, 2));
-            } else {
-                setError('The response does not contain valid data');
-            }
+            setRecomendaciones(data.recomendaciones || {});
+            setError('');
         } catch (err) {
-            console.error('Error getting recommendations:', err);
-            setError('There was an error getting the recommendations.');
+            setError('Hubo un error al obtener las recomendaciones.');
         }
     };
 
@@ -48,27 +38,25 @@ const JuegoRecomendaciones = () => {
         setCargandoJuego(nombreJuego);
         try {
             const response = await fetch(`http://localhost:5000/juego/${nombreJuego}`);
-            if (!response.ok) {
-                throw new Error('Error getting game details');
-            }
+            if (!response.ok) throw new Error('Error al obtener los detalles del juego');
+    
             const data = await response.json();
-            console.log('Game details received:', data);
-
-            const categorias = Object.keys(data)
-                .filter((key) => key !== 'name' && key !== 'name_normalized' && data[key])
-                .map((key) => key);
-
+            console.log('Detalles del juego:', data);
+    
+            const categorias = Object.entries(data)
+                .filter(([key, value]) => generosColumns.includes(key) && value === true)
+                .map(([key]) => key);
+    
             setDetalleJuego({
                 nombre: nombreJuego,
                 categorias,
-                año: data.year || 'Information not available',
-                descripcion: data.plot || 'No description found for this game.',
-                rating: data.rating || 'No rating',
+                año: data.year || 'Información no disponible',
+                descripcion: data.plot || 'No se encontró una descripción para este juego.',
+                rating: data.rating || 'Sin calificación',
             });
             setError('');
         } catch (err) {
-            console.error('Error getting game details:', err);
-            setError('There was an error getting the game details.');
+            setError('Hubo un error al obtener los detalles del juego.');
         } finally {
             setCargandoJuego('');
         }
