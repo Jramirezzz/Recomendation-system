@@ -11,6 +11,11 @@ Next Game is a recommendation system for video games, whether used in a group of
 
 
 
+## Behance
+
+[Presentation](https://www.behance.net/gallery/213620193/NextGame?tracking_source=search_projects|NextGame&l=0)
+
+
 ## Deployment virtual environment
 
 To deploy this project run
