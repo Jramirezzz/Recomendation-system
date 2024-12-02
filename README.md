@@ -1,5 +1,5 @@
 
-![Logo]([https://www.icesi.edu.co/wp-content/uploads/2024/08/financiacion-universidad-icesi.png](https://www.icesi.edu.co/servicios/wp-content/uploads/2017/05/logo_icesi.png))
+![Logo](https://www.icesi.edu.co/servicios/wp-content/uploads/2017/05/logo_icesi.png)
 
 
 
