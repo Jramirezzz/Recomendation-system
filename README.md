@@ -1,4 +1,6 @@
-<img src=https://www.icesi.edu.co/buscar-personas/assets/img/ban-icesi.png width="250" height="100" align="center">
+
+![Logo](https://www.icesi.edu.co/wp-content/uploads/2024/08/financiacion-universidad-icesi.png)
+
 
 
 -------------------
