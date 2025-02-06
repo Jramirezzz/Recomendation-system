@@ -55,7 +55,7 @@ To deploy this project run
 ## Authors
 
 - [Juan David Avila](https://github.com/JD-AvilaT)
-- [Sebastian Gonzales]()
+- [Sebastian Gonzales](https://github.com/SebasG819)
 - [Juan Esteban Ramirez](https://github.com/Jramirezzz)
 - [Isabella Naranjo]()
 - [Santiago Cuadros](https://github.com/sacuadros09)
